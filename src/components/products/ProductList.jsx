@@ -20,8 +20,8 @@ export default function ProductList({ products }) {
       }
       {
         productsToShow < products.length &&
-        <div className="d-flex justify-content-center my-3">
-          <button className='btn btn-lg btn-dark pe-'
+        <div className="d-flex justify-content-center">
+          <button className='btn btn-sm btn-dark pe-'
           onClick={() => loadMoreProducts()}
           >
             <i className="bi bi-arrow-clockwise"></i>{" "}

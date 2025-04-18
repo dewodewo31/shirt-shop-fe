@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'react-toastify/dist/ReactToastify.css'
+import "react-image-gallery/styles/css/image-gallery.css";
+
 // file
 import './index.css'
 import App from './App.jsx'

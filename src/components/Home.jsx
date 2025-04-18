@@ -101,7 +101,7 @@ export default function Home() {
     }, [selectedColor, selectedSize, debouncedSearchTerm[0]]);
   
     return (
-      <div className="row">
+      <div className="row py-5">
         <div className="col-md-12">
           <div className="row">
             <div className="col-md-8 mx-auto">
