@@ -6,16 +6,19 @@ import Spinner from "../layouts/Spinner";
 import thousands from "../../helpers/thousands";
 import parse from "html-react-parser";
 import Slider from "./images/Slider";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/slices/cartSlice";
 
 export default function Product() {
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState([false]);
 
-  const [selectedColor, setSelectedColor] = useState("");
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [error, setError] = useState("");
   const { slug } = useParams();
+  const dispatch = useDispatch()
   useEffect(() => {
     const fetchProductBySlug = async () => {
       setLoading(true);
@@ -48,7 +51,7 @@ export default function Product() {
           <div className="row g-4 my-5 align-items-start">
             <div className="col-md-5">
               <div className="border rounded shadow-sm p-2 bg-white">
-                <Slider product={product}/>
+                <Slider product={product} />
               </div>
             </div>
 
@@ -83,8 +86,13 @@ export default function Product() {
                     {product.sizes?.map(size => (
                       <span
                         key={size.id}
-                        className="badge rounded-pill bg-light text-dark border fw-bold px-3 py-2"
-                        style={{ fontSize: "1rem" }}
+                        onClick={() => setSelectedSize(size)}
+                        className={`badge rounded-pill fw-bold px-3 py-2 transition-all ${
+                          selectedSize?.id === size.id
+                            ? "bg-dark text-white border border-3 border-warning shadow"
+                            : "bg-light text-dark border border-secondary-subtle hover:bg-warning-subtle hover:text-dark"
+                        }`}
+                        style={{ fontSize: "1rem", cursor: "pointer" }}
                       >
                         {size.name}
                       </span>
@@ -100,12 +108,18 @@ export default function Product() {
                     {product.colors?.map(color => (
                       <div
                         key={color.id}
-                        className="border rounded-circle"
+                        onClick={() => setSelectedColor(color)}
+                        className={`rounded-circle border transition-all duration-200 ${
+                          selectedColor?.id === color.id
+                            ? "border-3 border-dark shadow-lg scale-110 ring ring-warning"
+                            : "border border-secondary-subtle hover:scale-105 hover:shadow-sm"
+                        }`}
                         title={color.name}
                         style={{
                           backgroundColor: color.name.toLowerCase(),
                           height: "35px",
                           width: "35px",
+                          cursor: "pointer",
                         }}
                       />
                     ))}
@@ -122,6 +136,48 @@ export default function Product() {
                       Sold Out
                     </span>
                   )}
+                </div>
+              </div>
+              <div className="row mt-5">
+                <div className="col-md-6 mx-auto">
+                  <div className="mb-4">
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder="Qty"
+                      value={qty}
+                      onChange={e => setQty(e.target.value)}
+                      min={1}
+                      max={product?.qty > 1 ? product.qty : 1}
+                    />
+                  </div>
+                </div>
+                <div className="d-flex justify-content-center">
+                  <button
+                    className=" btn btn-dark"
+                    disabled={
+                      !selectedColor || !selectedSize || product?.qty == 0
+                    }
+                    onClick={()=> {
+                      dispatch(addToCart({
+                        product_id: product.id,
+                        slug: product.slug,
+                        name: product.name,
+                        qty: parseInt(qty),
+                        price: parseInt(product.price),
+                        color: selectedColor,
+                        size: selectedSize,
+                        maxQty: parseInt(product.qty),
+                        image: product.thumbnail,
+                        coupon_id: null
+                      }))
+                      setSelectedColor(null)
+                      setSelectedSize(null)
+                      setQty(1)
+                    }}
+                  >
+                    <i className="bi bi-cart-plus-fill"></i> Keranjang
+                  </button>
                 </div>
               </div>
             </div>

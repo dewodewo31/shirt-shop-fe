@@ -12,9 +12,17 @@ import './index.css'
 import App from './App.jsx'
 
 import { ToastContainer } from 'react-toastify'
+import { persistor, store } from './redux/store/index.js'
+import { PersistGate } from 'redux-persist/integration/react'
+import { Provider } from 'react-redux'
+
 ReactDom.createRoot(document.getElementById('root')).render(
-  <div className='container card shadow-sm my-4'>
-    <App />
-    <ToastContainer position='top-right'/>
-  </div>,
+  <Provider store={store}>
+    <PersistGate persistor={persistor}>  
+      <div className='container card shadow-sm my-4'>
+        <ToastContainer position='top-right'/>
+        <App />
+      </div>,
+    </PersistGate>
+  </Provider>
 )
