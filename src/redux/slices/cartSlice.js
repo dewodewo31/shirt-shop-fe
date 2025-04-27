@@ -15,17 +15,19 @@ export const cartSlice = createSlice({
   reducers: {
     addToCart(state, action) {
       const item = action.payload;
+      console.log("ITEM:", item);
+      console.log("CART:", state.cartItems);
       let productItem = state.cartItems.find(
         product =>
           product.product_id === item.product_id &&
-          product.color === item.color &&
-          product.size === item.size
+          product.color.id === item.color.id &&
+          product.size.id === item.size.id
       );
       if (productItem) {
-        toast.info("Product already added to your cart");
+        toast.info("Produk Sudah Ditambahkan Kedalam Keranjang ");
       } else {
         state.cartItems = [item, ...state.cartItems];
-        toast.success("Product added to your cart");
+        toast.success("Produk Berhasil Ditambahkan Kedalam Keranjang");
       }
     },
     incrementQ(state, action) {
@@ -33,13 +35,17 @@ export const cartSlice = createSlice({
       let productItem = state.cartItems.find(
         product =>
           product.product_id === item.product_id &&
-          product.color === item.color &&
-          product.size === item.size
+          product.color.id === item.color.id &&
+          product.size.id === item.size.id
       );
-      if (productItem.qty === productItem.maxQty) {
-        toast.info(`Only ${productItem.maxQty} availlable`);
-      } else {
-        productItem.qty += 1;
+      if (productItem) {
+        if (productItem.qty === productItem.maxQty) {
+          toast.warn(
+            `Maksimal Hanya ${productItem.maxQty} Produk Yang Tersedia`
+          );
+        } else {
+          productItem.qty += 1;
+        }
       }
     },
     decrementQ(state, action) {
@@ -47,35 +53,42 @@ export const cartSlice = createSlice({
       let productItem = state.cartItems.find(
         product =>
           product.product_id === item.product_id &&
-          product.color === item.color &&
-          product.size === item.size
+          product.color.id === item.color.id &&
+          product.size.id === item.size.id
       );
-      productItem.qty -= 1;
-      if (productItem.qty === 0) {
-        state.cartItems = state.cartItems.filter(
-          product => product.ref !== item.ref
-        );
+
+      if (productItem) {
+        if (productItem.qty <= 1) {
+          toast.warn("Pembelian Minimal Adalah 1");
+        } else {
+          productItem.qty -= 1;
+        }
       }
     },
     removeFromCart(state, action) {
       const item = action.payload;
       state.cartItems = state.cartItems.filter(
-        product => product.ref !== item.ref
+        product =>
+          !(
+            product.product_id === item.product_id &&
+            product.color.id === item.color.id &&
+            product.size.id === item.size.id
+          )
       );
       toast.warning("Product removed from your cart");
     },
-    setValidCoupon(state, action) {
-      state.validCoupon = action.payload;
-    },
-    addCouponIdToCartItem(state, action) {
-      const coupon_id = action.payload;
-      state.cartItems = state.cartItems.map(item => {
-        return { ...item, coupon_id };
-      });
-    },
-    clearCartItems(state, action) {
-      state.cartItems = [];
-    },
+  },
+  setValidCoupon(state, action) {
+    state.validCoupon = action.payload;
+  },
+  addCouponIdToCartItem(state, action) {
+    const coupon_id = action.payload;
+    state.cartItems = state.cartItems.map(item => {
+      return { ...item, coupon_id };
+    });
+  },
+  clearCartItems(state, action) {
+    state.cartItems = [];
   },
 });
 
