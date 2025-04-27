@@ -6,6 +6,8 @@ import Spinner from "../layouts/Spinner";
 import thousands from "../../helpers/thousands";
 import parse from "html-react-parser";
 import Slider from "./images/Slider";
+import { Rating } from "@mui/material";
+import { FaTruck, FaShieldAlt, FaExchangeAlt } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../redux/slices/cartSlice";
 
@@ -41,71 +43,91 @@ export default function Product() {
   }, [slug]);
 
   return (
-    <div className="card my-5">
+    <div className="container my-5">
       {error ? (
         <Alert type="danger" content={error} />
       ) : loading ? (
         <Spinner />
       ) : (
         <>
-          <div className="row g-4 my-5 align-items-start">
-            <div className="col-md-5">
-              <div className="border rounded shadow-sm p-2 bg-white">
-                <Slider product={product} />
+
+          <div className="row g-5">
+            {/* Image Gallery */}
+            <div className="col-lg-6">
+              <div className="sticky-top" style={{ top: "80px" }}>
+                <div className="main-image mb-3 border rounded-3 overflow-hidden">
+                  <Slider product={product} />
+                </div>
+                
+                <div className="thumbnail-slider d-flex gap-2">
+                  {product.images?.map((img) => (
+                    <img
+                      key={img.id}
+                      src={img.url}
+                      alt={product.name}
+                      className="img-thumbnail cursor-pointer"
+                      style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="col-md-7">
-              <div className="card border-0 shadow-sm p-4">
-                <h2 className="fw-bold text-dark mb-3">{product.name}</h2>
+            {/* Product Info */}
+            <div className="col-lg-6">
+              <div className="card border-0 p-4 shadow-sm">
+                <h1 className="fw-bold display-6 mb-3">{product.name}</h1>
+                
+                <div className="d-flex align-items-center gap-3 mb-4">
+                  <Rating
+                    value={product.rating || 4.5}
+                    precision={0.5}
+                    readOnly
+                    size="large"
+                  />
+                  <span className="text-muted">(1,234 reviews)</span>
+                </div>
 
-                <h4 className="mb-3 text-primary">
-                  Harga:
-                  <span className="badge bg-primary ms-2 p-3 fs-5">
-                    Rp. {thousands(product.price)},-
-                  </span>
-                </h4>
-
-                <div className="mb-4">
-                  <strong className="fs-5 d-block mb-2 text-secondary">
-                    Deskripsi Barang:
-                  </strong>
-                  <div
-                    className="text-muted p-3 border border-2 rounded-3 bg-light"
-                    style={{ whiteSpace: "pre-line" }}
-                  >
-                    {parse(product?.desc)}
+                <div className="bg-light p-4 rounded-3 mb-4">
+                  <div className="d-flex align-items-baseline gap-3">
+                    <h2 className="text-danger fw-bold mb-0">
+                      Rp{thousands(product.price)}
+                    </h2>
+                    <del className="text-muted fs-5">Rp{thousands(product.price + 50000)}</del>
+                    <span className="badge bg-danger fs-6">30% OFF</span>
+                  </div>
+                  
+                  <div className="mt-3 d-flex gap-2 text-success">
+                    <FaTruck className="fs-5" />
+                    <span>Gratis Ongkir &amp; Pengembalian</span>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <strong className="fs-5 text-secondary d-block mb-2">
-                    Ukuran:
-                  </strong>
-                  <div className="d-flex flex-wrap gap-2">
-                    {product.sizes?.map(size => (
-                      <span
-                        key={size.id}
-                        onClick={() => setSelectedSize(size)}
-                        className={`badge rounded-pill fw-bold px-3 py-2 transition-all ${
-                          selectedSize?.id === size.id
-                            ? "bg-dark text-white border border-3 border-warning shadow"
-                            : "bg-light text-dark border border-secondary-subtle hover:bg-warning-subtle hover:text-dark"
-                        }`}
-                        style={{ fontSize: "1rem", cursor: "pointer" }}
-                      >
-                        {size.name}
-                      </span>
-                    ))}
+                {/* Variant Selection */}
+                <div className="mb-5">
+                  <div className="mb-4">
+                    <h5 className="fw-bold mb-3">Pilih Ukuran:</h5>
+                    <div className="d-flex flex-wrap gap-2">
+                      {product.sizes?.map((size) => (
+                        <button
+                          key={size.id}
+                          onClick={() => setSelectedSize(size)}
+                          className={`btn ${
+                            selectedSize?.id === size.id
+                              ? "btn-dark"
+                              : "btn-outline-dark"
+                          } rounded-pill px-4`}
+                        >
+                          {size.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="mb-4">
-                  <strong className="fs-5 text-secondary d-block mb-2">
-                    Warna:
-                  </strong>
-                  <div className="d-flex flex-wrap gap-2">
-                    {product.colors?.map(color => (
+                  <div className="mb-4">
+                    <h5 className="fw-bold mb-3">Pilih Warna:</h5>
+                    <div className="d-flex flex-wrap gap-3">
+                      {product.colors?.map(color => (
                       <div
                         key={color.id}
                         onClick={() => setSelectedColor(color)}
@@ -123,41 +145,40 @@ export default function Product() {
                         }}
                       />
                     ))}
+                    </div>
+                  </div>
+
+                  <div className="quantity-selector mb-4">
+                    <h5 className="fw-bold mb-3">Kuantitas:</h5>
+                    <div className="d-flex align-items-center gap-2">
+                      <button 
+                        className="btn btn-outline-secondary"
+                        onClick={() => setQty(Math.max(1, qty - 1))}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        className="form-control text-center"
+                        value={qty}
+                        onChange={(e) => setQty(Math.max(1, e.target.value))}
+                        style={{ width: "70px" }}
+                      />
+                      <button
+                        className="btn btn-outline-secondary"
+                        onClick={() => setQty(qty + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-3">
-                  {product.status == 1 ? (
-                    <span className="badge bg-success fs-6 px-4 py-2">
-                      Stok Tersedia
-                    </span>
-                  ) : (
-                    <span className="badge bg-danger fs-6 px-4 py-2">
-                      Sold Out
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="row mt-5">
-                <div className="col-md-6 mx-auto">
-                  <div className="mb-4">
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="Qty"
-                      value={qty}
-                      onChange={e => setQty(e.target.value)}
-                      min={1}
-                      max={product?.qty > 1 ? product.qty : 1}
-                    />
-                  </div>
-                </div>
-                <div className="d-flex justify-content-center">
+                {/* Action Buttons */}
+                <div className="d-flex gap-3 mb-4">
                   <button
-                    className=" btn btn-dark"
-                    disabled={
-                      !selectedColor || !selectedSize || product?.qty == 0
-                    }
+                    className="btn btn-danger btn-lg flex-grow-1"
+                    disabled={!selectedColor || !selectedSize}
                     onClick={()=> {
                       dispatch(addToCart({
                         product_id: product.id,
@@ -176,9 +197,91 @@ export default function Product() {
                       setQty(1)
                     }}
                   >
-                    <i className="bi bi-cart-plus-fill"></i> Keranjang
+                    <i className="bi bi-cart3 me-2"></i> Tambah ke Keranjang
                   </button>
                 </div>
+
+                {/* Trust Badges */}
+                <div className="row g-3 text-center mb-4">
+                  <div className="col-4">
+                    <div className="p-2 border rounded-3">
+                      <FaTruck className="fs-3 text-primary mb-2" />
+                      <div className="small">Gratis Pengiriman</div>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="p-2 border rounded-3">
+                      <FaShieldAlt className="fs-3 text-success mb-2" />
+                      <div className="small">Garansi 5 Hari</div>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="p-2 border rounded-3">
+                      <FaExchangeAlt className="fs-3 text-warning mb-2" />
+                      <div className="small">10 Hari Retur</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product Details */}
+                <div className="accordion" id="productAccordion">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button
+                        className="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#description"
+                      >
+                        Deskripsi Produk
+                      </button>
+                    </h2>
+                    <div
+                      id="description"
+                      className="accordion-collapse collapse show"
+                    >
+                      <div className="accordion-body">
+                        {parse(product?.desc)}
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Sticky Add to Cart */}
+          <div className="d-lg-none fixed-bottom bg-white border-top shadow-lg">
+            <div className="container py-3">
+              <div className="d-flex gap-2">
+                <div className="flex-grow-1">
+                  <div className="h4 text-danger mb-0">Rp{thousands(product.price)}</div>
+                  <small className="text-muted">Stok: {product.qty}</small>
+                </div>
+                <button 
+                  className="btn btn-danger btn-lg"
+                  disabled={!selectedColor || !selectedSize}
+                  onClick={()=> {
+                    dispatch(addToCart({
+                      product_id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      qty: parseInt(qty),
+                      price: parseInt(product.price),
+                      color: selectedColor,
+                      size: selectedSize,
+                      maxQty: parseInt(product.qty),
+                      image: product.thumbnail,
+                      coupon_id: null
+                    }))
+                    setSelectedColor(null)
+                    setSelectedSize(null)
+                    setQty(1)
+                  }}
+                >
+                  <i className="bi bi-cart3 me-2"></i> Beli
+                </button>
               </div>
             </div>
           </div>
