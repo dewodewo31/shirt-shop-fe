@@ -6,6 +6,8 @@ import Dashboard from "./components/Dashboard"
 import Cart from "./components/cart/Cart"
 import About from "./components/about/About"
 import Checkout from "./components/checkout/Checkout"
+import Login from "./components/user/Login"
+import Register from "./components/user/Register"
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/checkout" element={<Checkout/>}/>
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/register" element={<Register/>}/>
       </Routes>
     </BrowserRouter>
   )

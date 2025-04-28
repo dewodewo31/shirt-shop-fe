@@ -1,8 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 
+// Helper untuk simpan cart ke localStorage
+const saveCartToLocalStorage = cartItems => {
+  localStorage.setItem("cartItems", JSON.stringify(cartItems));
+};
+
+// Kalau mau load cart saat app pertama kali buka
+const loadCartFromLocalStorage = () => {
+  const cart = localStorage.getItem("cartItems");
+  return cart ? JSON.parse(cart) : [];
+};
+
 const initialState = {
-  cartItems: [],
+  cartItems: loadCartFromLocalStorage(), // ambil dari localStorage kalau ada
   validCoupon: {
     name: "",
     discount: 0,
@@ -15,8 +26,6 @@ export const cartSlice = createSlice({
   reducers: {
     addToCart(state, action) {
       const item = action.payload;
-      console.log("ITEM:", item);
-      console.log("CART:", state.cartItems);
       let productItem = state.cartItems.find(
         product =>
           product.product_id === item.product_id &&
@@ -24,9 +33,10 @@ export const cartSlice = createSlice({
           product.size.id === item.size.id
       );
       if (productItem) {
-        toast.info("Produk Sudah Ditambahkan Kedalam Keranjang ");
+        toast.info("Produk Sudah Ditambahkan Kedalam Keranjang");
       } else {
         state.cartItems = [item, ...state.cartItems];
+        saveCartToLocalStorage(state.cartItems);
         toast.success("Produk Berhasil Ditambahkan Kedalam Keranjang");
       }
     },
@@ -45,6 +55,7 @@ export const cartSlice = createSlice({
           );
         } else {
           productItem.qty += 1;
+          saveCartToLocalStorage(state.cartItems);
         }
       }
     },
@@ -56,12 +67,12 @@ export const cartSlice = createSlice({
           product.color.id === item.color.id &&
           product.size.id === item.size.id
       );
-
       if (productItem) {
         if (productItem.qty <= 1) {
           toast.warn("Pembelian Minimal Adalah 1");
         } else {
           productItem.qty -= 1;
+          saveCartToLocalStorage(state.cartItems);
         }
       }
     },
@@ -75,20 +86,23 @@ export const cartSlice = createSlice({
             product.size.id === item.size.id
           )
       );
-      toast.warning("Product removed from your cart");
+      saveCartToLocalStorage(state.cartItems);
+      toast.warning("Produk Berhasil Dihapus Dari Keranjang");
     },
-  },
-  setValidCoupon(state, action) {
-    state.validCoupon = action.payload;
-  },
-  addCouponIdToCartItem(state, action) {
-    const coupon_id = action.payload;
-    state.cartItems = state.cartItems.map(item => {
-      return { ...item, coupon_id };
-    });
-  },
-  clearCartItems(state, action) {
-    state.cartItems = [];
+    clearCartItems(state) {
+      state.cartItems = [];
+      saveCartToLocalStorage([]);
+    },
+    setValidCoupon(state, action) {
+      state.validCoupon = action.payload;
+    },
+    addCouponIdToCartItem(state, action) {
+      const coupon_id = action.payload;
+      state.cartItems = state.cartItems.map(item => {
+        return { ...item, coupon_id };
+      });
+      saveCartToLocalStorage(state.cartItems);
+    },
   },
 });
 
@@ -99,9 +113,9 @@ export const {
   incrementQ,
   decrementQ,
   removeFromCart,
+  clearCartItems,
   setValidCoupon,
   addCouponIdToCartItem,
-  clearCartItems,
 } = cartSlice.actions;
 
 export default cartReducer;
